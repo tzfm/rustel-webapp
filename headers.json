@@ -1,0 +1,21 @@
+{
+  "app": {
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Embedder-Policy": "require-corp",
+    "Content-Security-Policy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; frame-src {engineOrigin}; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+    "X-Content-Type-Options": "nosniff"
+  },
+  "engine": {
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Embedder-Policy": "require-corp",
+    "Cross-Origin-Resource-Policy": "cross-origin",
+    "Content-Security-Policy": "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; frame-ancestors {appOrigin}; base-uri 'none'; form-action 'none'",
+    "X-Content-Type-Options": "nosniff"
+  },
+  "engineWorker": {
+    "Cross-Origin-Embedder-Policy": "require-corp",
+    "Cross-Origin-Resource-Policy": "cross-origin",
+    "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-eval' 'wasm-unsafe-eval'",
+    "X-Content-Type-Options": "nosniff"
+  }
+}

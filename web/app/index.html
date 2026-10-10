@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>rustel</title>
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
+    <link rel="modulepreload" href="editor.js">
+    <script type="module" src="main.js"></script>
+  </head>
+  <body>
+    <main>
+      <h1>rustel</h1>
+      <p id="score-label" class="label">Score</p>
+      <div id="editor" class="editor"><pre>setcps(0.5)
+note("c3 e3 g3 c4").s("sawtooth")</pre></div>
+      <div class="row">
+        <button id="play" type="button" disabled>Play</button>
+        <button id="stop" type="button" disabled>Stop</button>
+      </div>
+      <p class="hint">Ctrl+Enter (Cmd+Enter) plays the score, or replaces the sound while playing. Ctrl+. (Cmd+.) stops. Tab indents. Escape, then Tab, leaves the editor.</p>
+      <p id="error" role="alert"></p>
+      <p id="status"></p>
+    </main>
+  </body>
+</html>

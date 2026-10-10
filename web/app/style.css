@@ -1,0 +1,135 @@
+:root {
+  color-scheme: light dark;
+  --border: #8888;
+  /* The error line: 6.5 to 1 on white. */
+  --accent: #b3261e;
+
+  /* The editor and its colours. The editor reads them through its shadow root.
+     Each text colour holds a contrast of 4.5 to 1 or more on its background. */
+  --focus: #0969da;
+  --editor-bg: #ffffff;
+  --editor-fg: #1f2328;
+  --editor-gutter-bg: #f3f4f6;
+  --editor-gutter-fg: #57606a;
+  --editor-match: #cfe8d9;
+  --editor-mismatch: #f6d3d0;
+  --editor-error: #b3261e;
+  --editor-error-bg: #fde7e5;
+  --tok-comment: #5a6472;
+  --tok-string: #116329;
+  --tok-number: #953800;
+  --tok-punctuation: #57606a;
+  --tok-keyword: #6639ba;
+  --tok-function: #0550ae;
+  --tok-name: #0b6b78;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 7.7 to 1 on the dark canvas of Firefox. */
+    --accent: #ff8f87;
+    --focus: #58a6ff;
+    --editor-bg: #161b22;
+    --editor-fg: #e6edf3;
+    --editor-gutter-bg: #0d1117;
+    --editor-gutter-fg: #8f98a3;
+    --editor-match: #253f57;
+    --editor-mismatch: #5a2c2c;
+    --editor-error: #ff8f87;
+    --editor-error-bg: #3b2221;
+    --tok-comment: #8f98a3;
+    --tok-string: #7ee787;
+    --tok-number: #ffa657;
+    --tok-punctuation: #a8b1bc;
+    --tok-keyword: #d2a8ff;
+    --tok-function: #79c0ff;
+    --tok-name: #56d4dd;
+  }
+}
+
+body {
+  font:
+    16px / 1.5 system-ui,
+    sans-serif;
+  margin: 0;
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+h1 {
+  font-size: 1.25rem;
+  margin: 0 0 1rem;
+}
+
+.label {
+  margin: 0;
+}
+
+.editor {
+  margin: 0.25rem 0 1rem;
+}
+
+/* The score as text, before the editor arrives. The box has the height the
+   editor has at the start, so the page does not jump. */
+.editor pre {
+  box-sizing: border-box;
+  min-height: calc(6 * 1.4em + 10px);
+  margin: 0;
+  padding: 4px 6px 4px 36px;
+  overflow: hidden;
+  font:
+    1rem / 1.4 ui-monospace,
+    monospace;
+  color: var(--editor-fg);
+  background: var(--editor-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+button {
+  font: inherit;
+  min-width: 5rem;
+  padding: 0.4rem 1rem;
+}
+
+.hint {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  opacity: 0.75;
+}
+
+#error {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--accent);
+}
+
+#status {
+  margin: 0;
+  font:
+    0.875rem / 1.4 ui-monospace,
+    monospace;
+}
+
+/* The engine frame has no content. Its size stays above 0 and the frame stays
+   in the viewport, so the browser keeps running its animation frames. A frame
+   outside the viewport is throttled. */
+#engine {
+  position: fixed;
+  width: 2px;
+  height: 2px;
+  border: 0;
+  right: 0;
+  bottom: 0;
+}

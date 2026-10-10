@@ -1,0 +1,13 @@
+[package]
+name = "rustel-web-transpiler"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "The score transpiler as a wasm module with no imports"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rustel-transpiler.workspace = true

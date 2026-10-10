@@ -1,0 +1,82 @@
+#!/bin/sh
+# Runs every check of the repository. Stops at the first failing step.
+set -eu
+
+cd "$(dirname "$0")/.."
+release=target/wasm32-unknown-unknown/release
+dsp_wasm=$release/rustel_web_dsp.wasm
+engine_wasm=$release/rustel_web_engine.wasm
+transpiler_wasm=$release/rustel_web_transpiler.wasm
+
+step() {
+    name=$1
+    shift
+    printf '\n== %s\n' "$name"
+    "$@" || {
+        printf '\ngate failed at step: %s\n' "$name" >&2
+        exit 1
+    }
+}
+
+# The renderer and the transpiler take no imports. The engine takes one,
+# `host_call`, which carries a score function from the module to the host.
+# Each module holds no local path.
+check_wasm() {
+    node -e '
+const { readFileSync } = require("node:fs");
+const [dsp, engine, transpiler] = process.argv.slice(1);
+const wanted = [[dsp, []], [engine, ["binding.host_call"]], [transpiler, []]];
+for (const [path, expected] of wanted) {
+  const module = new WebAssembly.Module(readFileSync(path));
+  const imports = WebAssembly.Module.imports(module).map((entry) => `${entry.module}.${entry.name}`);
+  if (imports.join() !== expected.join()) {
+    console.error(`${path} imports [${imports}], not [${expected}]`);
+    process.exit(1);
+  }
+}
+' "$dsp_wasm" "$engine_wasm" "$transpiler_wasm" || return 1
+    for wasm in "$dsp_wasm" "$engine_wasm" "$transpiler_wasm"; do
+        if grep -a -q /home/ "$wasm"; then
+            echo "$wasm holds a /home/ path" >&2
+            return 1
+        fi
+    done
+}
+
+# The dev tools come from the lock file. The stamp node_modules/.lock detects a change.
+install_node_modules() {
+    if ! cmp -s package-lock.json node_modules/.lock; then
+        npm ci --ignore-scripts
+        cp package-lock.json node_modules/.lock
+    fi
+}
+
+# No built file holds a local path.
+check_dist() {
+    if grep -r -a -l /home/ dist >&2; then
+        echo "dist holds a /home/ path" >&2
+        return 1
+    fi
+}
+
+step "rustfmt" cargo fmt --all -- --check
+step "clippy, host" cargo clippy --workspace --all-targets -- -D warnings
+step "clippy, wasm32" cargo clippy -p rustel-web-dsp -p rustel-web-engine -p rustel-web-transpiler --lib --target wasm32-unknown-unknown -- -D warnings
+step "tests" cargo test --workspace
+step "wasm build, crates/dsp" scripts/wasm-build dsp
+step "wasm build, crates/engine" scripts/wasm-build engine
+step "wasm build, crates/transpiler" scripts/wasm-build transpiler
+step "wasm imports and paths" check_wasm
+step "wasm smoke" node scripts/wasm-smoke.mjs "$dsp_wasm" "$engine_wasm"
+step "transpiler against native" node scripts/transpiler-check.mjs "$transpiler_wasm"
+step "npm ci" install_node_modules
+step "biome" node_modules/.bin/biome check .
+step "tsc" node_modules/.bin/tsc --noEmit
+step "unit tests" node --test web/tests/unit/*.test.ts
+step "conformance" node web/tests/conformance/run.ts
+step "build" node scripts/build.ts
+step "size" node scripts/size.ts
+step "paths in dist" check_dist
+step "browser test" node scripts/browser-test.ts
+
+printf '\ngate passed\n'

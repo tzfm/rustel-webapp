@@ -1,0 +1,28 @@
+[workspace]
+resolver = "3"
+members = ["crates/dsp", "crates/engine", "crates/transpiler", "crates/wire"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+license = "AGPL-3.0-or-later"
+publish = false
+
+[workspace.dependencies]
+rustel-audio = { git = "https://github.com/tzfm/rustel", rev = "1f66ece3c473fbfbe1cd3eb960b3770174577bd4", default-features = false }
+rustel-core = { git = "https://github.com/tzfm/rustel", rev = "1f66ece3c473fbfbe1cd3eb960b3770174577bd4", default-features = false }
+rustel-ext = { git = "https://github.com/tzfm/rustel", rev = "1f66ece3c473fbfbe1cd3eb960b3770174577bd4", default-features = false }
+rustel-fraction = { git = "https://github.com/tzfm/rustel", rev = "1f66ece3c473fbfbe1cd3eb960b3770174577bd4", default-features = false }
+rustel-mini = { git = "https://github.com/tzfm/rustel", rev = "1f66ece3c473fbfbe1cd3eb960b3770174577bd4", default-features = false }
+rustel-scheduler = { git = "https://github.com/tzfm/rustel", rev = "1f66ece3c473fbfbe1cd3eb960b3770174577bd4", default-features = false }
+rustel-transpiler = { git = "https://github.com/tzfm/rustel", rev = "1f66ece3c473fbfbe1cd3eb960b3770174577bd4" }
+rustel-voice = { git = "https://github.com/tzfm/rustel", rev = "1f66ece3c473fbfbe1cd3eb960b3770174577bd4", default-features = false }
+rustel-web-dsp = { path = "crates/dsp" }
+rustel-web-wire = { path = "crates/wire" }
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"

@@ -1,0 +1,70 @@
+#!/bin/sh
+# Builds the wasm modules. The gate and scripts/build.ts both call this file,
+# so one set of cargo commands and path remaps builds every module.
+#
+#     scripts/wasm-build [dsp|engine|transpiler|all]
+set -eu
+
+cd "$(dirname "$0")/.."
+root=$(pwd)
+cargo_home=${CARGO_HOME:-$HOME/.cargo}
+
+# The narrowest prefix comes last, so the last matching rule names the file
+# without a local path.
+remap="--remap-path-prefix=$HOME=~ \
+--remap-path-prefix=$cargo_home=cargo \
+--remap-path-prefix=$root=."
+
+# The renderer builds at size level "s": 31 KB less at brotli 11, and the
+# block time does not move. The engine module stays at level 3, where "s"
+# costs 8% to 17% of query speed.
+# The crate type is named here: Cargo skips fat LTO for a crate which builds an
+# rlib too, and the module grows by 10% at brotli 11.
+build_dsp() {
+    CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
+        RUSTFLAGS="-C target-feature=+simd128 $remap" \
+        cargo rustc --release -p rustel-web-dsp --target wasm32-unknown-unknown \
+        --crate-type cdylib
+}
+
+# The engine module builds with no fat LTO for now, as `cargo build` gives for
+# a crate with an rlib. With fat LTO the module is 8.5% larger at brotli 11, and
+# the speed difference is not measured yet.
+#
+# The stack holds the nesting limits of the engine. A query 512 nodes deep
+# (3.3 KB for each node), also through 16 nested callbacks, uses 1.70 MB. A
+# mini-notation text nested 63 levels uses 0.62 MB, and the 1479 scores of the
+# corpus peak at 0.22 MB. The numbers come from painting the stack of an
+# instance and reading the low mark after the query. A stack of 2 MiB holds
+# the deepest query and 1.5 MiB traps, so 4 MiB leaves 2.4 times the deepest
+# use for a build with other frames.
+build_engine() {
+    RUSTFLAGS="-C link-arg=-zstack-size=4194304 $remap" \
+        cargo build --release -p rustel-web-engine --target wasm32-unknown-unknown
+}
+
+# Level "z" builds 243 KB at brotli 11 against 316 KB at level 3, for 0.02 ms
+# more per transpile. A stack of 1 MiB holds the nesting limit of the engine.
+# The crate type is named here: Cargo skips fat LTO for a crate which builds an
+# rlib too, and the module grows by 8% at brotli 11.
+build_transpiler() {
+    CARGO_PROFILE_RELEASE_OPT_LEVEL=z \
+        RUSTFLAGS="-C link-arg=-zstack-size=1048576 $remap" \
+        cargo rustc --release -p rustel-web-transpiler --target wasm32-unknown-unknown \
+        --crate-type cdylib
+}
+
+case "${1:-all}" in
+dsp) build_dsp ;;
+engine) build_engine ;;
+transpiler) build_transpiler ;;
+all)
+    build_dsp
+    build_engine
+    build_transpiler
+    ;;
+*)
+    echo "usage: scripts/wasm-build [dsp|engine|transpiler|all]" >&2
+    exit 2
+    ;;
+esac

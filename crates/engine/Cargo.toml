@@ -1,0 +1,23 @@
+[package]
+name = "rustel-web-engine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "The pattern engine as a wasm module with one import"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rustel-audio.workspace = true
+rustel-core.workspace = true
+rustel-ext.workspace = true
+rustel-fraction.workspace = true
+rustel-mini.workspace = true
+rustel-scheduler.workspace = true
+rustel-voice.workspace = true
+rustel-web-wire.workspace = true
+
+[dev-dependencies]
+rustel-web-dsp.workspace = true

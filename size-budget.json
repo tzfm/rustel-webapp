@@ -1,0 +1,9 @@
+{
+  "app script": 2048,
+  "editor": 87200,
+  "engine scripts": 15400,
+  "dsp.wasm": 146432,
+  "engine.wasm": 548864,
+  "transpiler.wasm": 256000,
+  "other": 1652
+}

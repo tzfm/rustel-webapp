@@ -1,0 +1,30 @@
+{
+  "corpus/generated/seed143": {
+    "class": "wrong",
+    "reason": "pow of the wasm target gives another last digit: same haps and context, other digest"
+  },
+  "corpus/songs/onde": {
+    "class": "missing",
+    "reason": "initHydra is not installed"
+  },
+  "docs/learn-xen/tune": {
+    "class": "error",
+    "reason": "the scale table is not in the module: tune reports the scale name \"hexany15\" as not valid"
+  },
+  "docs/learn-xen/tune-2": {
+    "class": "error",
+    "reason": "the scale table is not in the module: tune reports the scale name \"tranh3\" as not valid"
+  },
+  "docs/learn-xen/xen-3": {
+    "class": "error",
+    "reason": "the scale table is not in the module: query: unknown scale name: \"hexany15\""
+  },
+  "docs/learn-xen/xen-4": {
+    "class": "error",
+    "reason": "the scale table is not in the module: query: unknown scale name: \"hexany15\""
+  },
+  "docs/tonal/withBase": {
+    "class": "error",
+    "reason": "the scale table is not in the module: query: unknown scale name: \"hexany23\""
+  }
+}
