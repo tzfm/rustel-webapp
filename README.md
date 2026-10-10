@@ -2,6 +2,7 @@
 
 rustel in your browser. Type a score, press Ctrl+Enter, hear the pattern.
 
+It's still early but here is a screenshot of what it looks like so far:
 ![The editor with a score](docs/screenshot.png)
 
 A score is JavaScript of the pattern language. Edit the score while the sound
