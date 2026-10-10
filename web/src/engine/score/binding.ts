@@ -25,7 +25,7 @@ const NO_RECEIVER = 0xffffffff;
 /** The alignment of a composer call which uses the current default. */
 export const DEFAULT_ALIGNMENT = 0xffffffff;
 
-const KIND_VALUE = 0;
+// Kind 0 maps a value.
 const KIND_PATTERN = 1;
 const KIND_BODY = 2;
 
@@ -155,12 +155,10 @@ export interface Binding {
   live: () => number;
   /** Write a value on the tape, have the module read the value and write the value again. */
   echo: (value: unknown) => unknown;
-  /** The number of score functions the instance knows. */
-  functionCount: () => number;
   /** How many times the module called a score function. */
   crossings: () => number;
   /**
-   * The first error a score function threw. The engine swallows such an error
+   * The first error a score function threw in this score. The engine swallows such an error
    * in a query, so a caller reads the error here to tell an error from a wrong answer.
    */
   firstThrow: () => string | undefined;
@@ -374,7 +372,10 @@ export async function openBinding(module: WebAssembly.Module): Promise<Binding> 
       if (back === FAILED) throw new TypeError(lastError());
       return tape.read(tape.address, back);
     },
-    beginScore: () => guarded(() => wasm.bind_begin_score()),
+    beginScore: () => {
+      firstThrow = undefined;
+      guarded(() => wasm.bind_begin_score());
+    },
     callEffect(index, args) {
       const cells = tape.write(args);
       if (guarded(() => wasm.bind_call_effect(index, cells)) >>> 0 === FAILED)
@@ -396,12 +397,9 @@ export async function openBinding(module: WebAssembly.Module): Promise<Binding> 
       if (back === FAILED) throw new TypeError(lastError());
       return tape.read(tape.address, back);
     },
-    functionCount: () => functions.length,
     crossings: () => crossings,
     firstThrow: () => firstThrow,
     poisoned: () => poisoned,
     lastError,
   };
 }
-
-export { KIND_PATTERN, KIND_VALUE };

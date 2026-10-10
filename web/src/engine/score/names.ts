@@ -66,7 +66,8 @@ export function installNames(surface: Surface): ScoreNames {
     enumerable: true,
     configurable: true,
   });
-  // `quiet`: `.q()` takes the lane out.
+  // `quiet`: `.q()` gives silence and makes no lane, as the engine does. A
+  // score writes `.q` in place of `.p` to mute one lane.
   Object.defineProperty(proto, "q", {
     value: () => silence,
     writable: true,

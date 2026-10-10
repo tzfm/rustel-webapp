@@ -411,6 +411,7 @@ pub extern "C" fn bind_call_value(index: u32, cells: u32) -> u32 {
 #[unsafe(no_mangle)]
 pub extern "C" fn bind_begin_score() {
     crate::binding::generators::begin_score();
+    crate::binding::host::begin_score();
 }
 
 /// A name the score registered. `flags` holds `PATTERNIFY` and
