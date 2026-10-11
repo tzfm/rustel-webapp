@@ -232,7 +232,11 @@ in this session only.
 ## Limits
 
 - The Worker never frees a function of a score, so the table of score
-  functions grows with each score. A promoted Worker starts with an empty table.
+  functions grows with each score. Two more tables grow the same way: the
+  bodies of registered names, one entry for each call with a patterned
+  argument, and the names of the value tape, one entry for each new string. A
+  score which makes such a call or a new string at query time grows them while
+  the score plays. A promoted Worker starts with empty tables.
 - A promoted Worker holds the last good score only. A name an earlier score
   registered is gone, and a score which needs the name fails in the standby. The
   standby then plays silence on the promotion.

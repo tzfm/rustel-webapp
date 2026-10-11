@@ -30,7 +30,7 @@ import { availableParallelism } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { Worker } from "node:worker_threads";
 import { compile } from "../../src/engine/score/score.ts";
-import { Transpiler } from "./transpile.ts";
+import { createTranspiler } from "../../src/engine/transpiler.ts";
 import type { Job, Outcome } from "./worker.ts";
 
 const root = resolve(import.meta.dirname, "../../..");
@@ -264,7 +264,7 @@ interface Expected {
 /** Runs every score and returns one row for each, in the order of the scores. */
 async function runScores(scores: Score[], options: Settings): Promise<Row[]> {
   const transpilerModule = await compile(readFileSync(options.transpilerWasm));
-  let transpiler = new Transpiler(transpilerModule);
+  const transpiler = createTranspiler(transpilerModule);
   const workers = pool(
     await compile(readFileSync(options.engineWasm)),
     options.workers,
@@ -300,8 +300,7 @@ async function runScores(scores: Score[], options: Settings): Promise<Row[]> {
           outcome = await workers.run(job);
         }
       } catch (error) {
-        // A trap ends the instance: the next score gets a new one.
-        transpiler = new Transpiler(transpilerModule);
+        // A trap ends the instance. The transpiler makes a new one for the next score.
         const message = String((error as Error | undefined)?.message ?? error);
         outcome = { ok: false, error: "TranspilerTrap", message, missing: undefined, ms: 0 };
       }

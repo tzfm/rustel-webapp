@@ -66,9 +66,14 @@ fn refuse<T>(id: CallbackId, what: &str) -> Result<T, String> {
     Err(message)
 }
 
-/// The first refusal since the module started, if any.
+/// The first refusal since the score started, if any.
 pub fn refusal() -> Option<String> {
     REFUSAL.with_borrow(Clone::clone)
+}
+
+/// Forgets the refusal of the score before.
+pub fn begin_score() {
+    REFUSAL.with_borrow_mut(Option::take);
 }
 
 thread_local! {
