@@ -8,3 +8,4 @@
 - A standby Worker takes over when a score hangs, makes the engine module trap or kills the Worker. The last good score plays on.
 - The gate plays the 1,479 committed scores of the engine and compares each one with its golden row. 1,472 pass, and `web/tests/conformance/expected.json` names the other 7 with the reason.
 - Each score starts with no stored callback error. The conformance run uses the transpiler glue of the page. The design notes name every table which grows while a score plays.
+- The Rust tests check the pointer of an init call before they read through the pointer. A failed init is now a clear test failure.

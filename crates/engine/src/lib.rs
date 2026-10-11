@@ -759,7 +759,7 @@ mod tests {
     #[test]
     fn a_long_message_is_cut_on_a_character_boundary() {
         // SAFETY: the layout lives in the module state until the next init.
-        let layout = unsafe { &*engine_init(48_000) };
+        let layout = unsafe { engine_init(48_000).as_ref() }.expect("the engine starts");
         let message = format!("{}é", "a".repeat(ERROR_CAPACITY - 1));
         assert_eq!(engine().unwrap().fail(&message), FAILED);
         assert_eq!(layout.error_len.get() as usize, ERROR_CAPACITY - 1);
