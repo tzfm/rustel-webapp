@@ -2,7 +2,8 @@
 //! browser. The exports share one state, so one test runs every case.
 
 use std::ops::RangeInclusive;
-use std::{ptr, slice};
+use std::ptr::{self, NonNull};
+use std::slice;
 
 use rustel_audio::AudioEvent;
 use rustel_core::Pattern;
@@ -30,18 +31,16 @@ const NOTES: &str = "c3 e3 g3 c4";
 const FREE: u32 = RECORD_CAPACITY as u32;
 
 /// The engine as the glue sees the engine.
-struct Glue(*const EngineLayout);
+struct Glue(&'static EngineLayout);
 
 impl Glue {
     fn init() -> Self {
-        let layout = engine_init(RATE);
-        assert!(!layout.is_null());
-        Self(layout)
+        // SAFETY: the layout lives in the module state until the next init.
+        Self(unsafe { engine_init(RATE).as_ref() }.expect("the engine starts"))
     }
 
     fn layout(&self) -> &EngineLayout {
-        // SAFETY: the layout lives in the module state until the next init.
-        unsafe { &*self.0 }
+        self.0
     }
 
     /// Copies the bytes into the text buffer and sets the pattern.
@@ -307,7 +306,7 @@ struct Sound {
 impl Sound {
     fn new() -> Self {
         // SAFETY: the layout lives in the module state until the next init.
-        let dsp = unsafe { &*dsp_init(RATE, 64) };
+        let dsp = unsafe { dsp_init(RATE, 64).as_ref() }.expect("the renderer starts");
         Self {
             dsp,
             heard: Vec::new(),
@@ -682,8 +681,9 @@ fn adopts_a_stopped_position() {
 fn engine_exports() {
     assert!(engine_canonical_event().is_null(), "no event before init");
     plays_stops_and_plays_again();
+    let event = NonNull::new(engine_canonical_event().cast_mut()).expect("an event after init");
     // SAFETY: the bytes are an event, as the glue copies them.
-    let canonical = unsafe { engine_canonical_event().cast::<AudioEvent>().read() };
+    let canonical = unsafe { event.cast::<AudioEvent>().read() };
     assert_eq!(canonical, canonical_event());
     updates_and_refuses_bad_text();
     updates_twice_before_a_turn();

@@ -278,7 +278,7 @@ mod tests {
     #[test]
     fn canonical_bytes_decode_to_the_canonical_event() {
         // SAFETY: the layout lives in the module state until the next init.
-        let layout = unsafe { &*dsp_init(48_000, 8) };
+        let layout = unsafe { dsp_init(48_000, 8).as_ref() }.expect("the renderer starts");
         assert_eq!(layout.record_bytes, size_of::<AudioEvent>());
         // The glue copies the bytes of an event into record 0.
         let copy = |event: &AudioEvent| {

@@ -58,7 +58,7 @@ fn peak(samples: &[f32]) -> f32 {
 #[test]
 fn sine_plays_stops_and_allocates_nothing() {
     // SAFETY: the layout lives in the module state until the next init.
-    let layout = unsafe { &*dsp_init(RATE, 64) };
+    let layout = unsafe { dsp_init(RATE, 64).as_ref() }.expect("the renderer starts");
     // SAFETY: the areas hold the sizes the layout documents.
     let (inbox, words, telemetry) = unsafe {
         (
