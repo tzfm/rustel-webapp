@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -14,9 +15,24 @@ concurrency:
 
 jobs:
   gate:
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+      # rust-toolchain.toml pins the compiler and the wasm target.
+      - run: rustup show
+      # The browser test reads the audio peak. Firefox needs a sound server
+      # to run an AudioContext, so a silent one stands in for a sound card.
+      - name: Start a silent sound server
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes pulseaudio
+          pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=silent
+          pactl set-default-sink silent
       - run: scripts/gate
